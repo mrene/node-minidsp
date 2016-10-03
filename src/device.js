@@ -15,7 +15,6 @@ class Device extends Events {
 	onData(data) {
 		// Response packets are all 64 bytes long, with the first byte
 		// indicating the length
-
 		if (!(data instanceof Buffer)) {
 			data = new Buffer(data);
 		}
@@ -25,11 +24,11 @@ class Device extends Events {
 		let length = data.readUInt8(0);
 
 		// Received packets length do not include the length header 
-		data = data.slice(1, length-1);
+		data = data.slice(1, length);
 
 		debug('onData', data);
 
-		this.trigger('data', data);
+		this.emit('data', data);
 	}
 
 	write(data) {
@@ -39,14 +38,17 @@ class Device extends Events {
 		// Since hidapi wants the report id as the first byte, this is 
 		// one byte longer than the actual data going down the write
 		let sendBuffer = new Buffer(65);
-		data.writeUInt8(0,0); // Set report id to 0
+		sendBuffer.writeUInt8(0,0); // Set report id to 0
 		data.copy(sendBuffer, 1);
 		sendBuffer.fill(0xFF, data.length+1);
 
-		debug('write2', sendBuffer);
-
 		// Send this report down to the HID device
-		this.device.write(sendBuffer);
+		// node-hid seems to dislike buffers and send out garbage instead,
+		// so we give it a flat array
+		let sendData = [ ];
+		sendBuffer.forEach((x) => sendData.push(x));
+
+		this.device.write(sendData);
 	}
 
 	crc(data) {
@@ -98,7 +100,7 @@ class Device extends Events {
 			// Convert back to dB
 			return {
 				volume: -2 * data.readUInt8(3),
-				mute: !!data.readUint8(4)
+				mute: !!data.readUInt8(4)
 			};
 		});
 	}
