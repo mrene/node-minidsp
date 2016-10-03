@@ -9,6 +9,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "ascii-progress": "^1.0.3",
+    "commander": "^2.9.0",
     "debug": "^2.2.0",
     "node-hid": "^0.5.1"
   }

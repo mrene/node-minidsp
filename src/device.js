@@ -137,7 +137,30 @@ class Device extends Events {
 	 * USB: 2
 	 */
 	setInput(value) {
+		if (typeof value === 'string') {
+			const inputs = {
+				analog: Constants.INPUT_ANALOG,
+				toslink: Constants.INPUT_TOSLINK,
+				usb: Constants.INPUT_USB
+			};
+
+			value = inputs[value.toLowerCase()];
+
+			if (!value) {
+				throw new Error('No such input');
+			}
+		}
 		return this.sendCommand([ 0x34, value ]);
+	}
+
+	getInputLevels() {
+		return this.sendCommand([ 0x14, 0x00, 0x44, 0x02 ]).then((data) => {
+			if (data.slice(0, 3).compare(Buffer.from([ 0x14, 0x00, 0x44 ])) !== 0) {
+				throw new Error('Unexpected response ' + data);
+			}
+
+			return [ data.readFloatLE(3), data.readFloatLE(7) ]
+		});
 	}
 }
 
