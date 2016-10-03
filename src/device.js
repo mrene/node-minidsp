@@ -1,54 +1,15 @@
-let hid = require('node-hid');
-let HID = hid.HID;
-let Events = require('events');
 const Constants = require('./constants');
-let debug = require('debug')('minidsp:device');
+const USBTransport = require('./usbtransport');
 
-class Device extends Events {
-	constructor({ vid, pid } = { vid: Constants.USB_VID, pid: Constants.USB_PID }) {
+class Device {
+	constructor(options) {
 		super();
 
-		this.device = new HID(vid, pid);
-		this.device.on('data', this.onData.bind(this));
-	}
-
-	onData(data) {
-		// Response packets are all 64 bytes long, with the first byte
-		// indicating the length
-		if (!(data instanceof Buffer)) {
-			data = new Buffer(data);
+		if (options.transport) {
+			this.transport = options.transport;
+		} else {
+			this.transport = new USBTransport(options);
 		}
-
-		// Slice the message and only keep what's important
-		// (the minidsp always sends 64 byte packets)
-		let length = data.readUInt8(0);
-
-		// Received packets length do not include the length header 
-		data = data.slice(1, length);
-
-		debug('onData', data);
-
-		this.emit('data', data);
-	}
-
-	write(data) {
-		debug('write', data);
-
-		// Expand data to a 64 byte buffer, pad with 0xFF
-		// Since hidapi wants the report id as the first byte, this is 
-		// one byte longer than the actual data going down the write
-		let sendBuffer = new Buffer(65);
-		sendBuffer.writeUInt8(0,0); // Set report id to 0
-		data.copy(sendBuffer, 1);
-		sendBuffer.fill(0xFF, data.length+1);
-
-		// Send this report down to the HID device
-		// node-hid seems to dislike buffers and send out garbage instead,
-		// so we give it a flat array
-		let sendData = [ ];
-		sendBuffer.forEach((x) => sendData.push(x));
-
-		this.device.write(sendData);
 	}
 
 	crc(data) {
@@ -81,11 +42,10 @@ class Device extends Events {
 		data.writeUInt8(this.crc(data.slice(0,data.length-1)), data.length - 1);
 
 		let ret = new Promise((resolve) => {
-			this.once('data', (data) => resolve(data));
-			//this.once('error', (e) => reject(e));
+			this.transport.once('data', (data) => resolve(data));
 		});
 
-		this.write(data);
+		this.transport.write(data);
 
 		return ret;
 	}
@@ -159,9 +119,42 @@ class Device extends Events {
 				throw new Error('Unexpected response ' + data);
 			}
 
-			return [ data.readFloatLE(3), data.readFloatLE(7) ]
+			return [ data.readFloatLE(3), data.readFloatLE(7) ];
 		});
+	}
+
+	getInput(index) {
+		return new Input({ index, device: this });
+	}
+}
+
+
+class Input {
+	constructor({ index, device }) {
+		this.index = index;
+		this.device = device;
+	}
+
+	/**
+	 * Sets this channel's mute flag
+	 * @param {Boolean} value
+	 */
+	setMute(value) {
+		let n = value ? 1 : 2;
+		return this.device.sendCommand([ 0x13, 0x80, 0, this.index, n, 0, 0, 0 ]);
+	}
+
+	/**
+	 * Sets the input gain for this channel
+	 * @param {Float} value Gain value in dB
+	 */
+	setGain(value) {
+		let cmd = Buffer.from([ 0x13, 0xa0, 0, this.index, 0, 0, 0, 0 ]);
+		cmd.writeFloatLE(value, 4);
+		return this.device.sendCommand(cmd);
 	}
 }
 
 module.exports = Device;
+
+
