@@ -3,6 +3,8 @@ This provides a command line interface to control the MiniDSP2x4HD directly over
 
 DISCLAIMER: The stock miniDSP plugin relies on last-change timestamps to synchronize its state. Changing some properties through this tool may reset that timestamp and force the configuration to be reloaded the next time the official application connects to the device. Backup your configuration first.
 
+![demo](./demo.gif)
+
 ## Installation
 ```
 npm install -g minidsp
