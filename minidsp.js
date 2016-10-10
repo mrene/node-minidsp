@@ -3,7 +3,7 @@
 let Device = require('./src/device');
 let program = require('commander');
 
-program.version('0.1');
+program.version('1.0.0');
 
 let actions = [ ];
 
