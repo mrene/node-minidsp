@@ -5,7 +5,6 @@ let program = require('commander');
 
 program.version('0.1');
 
-let dsp = new Device();
 let actions = [ ];
 
 program
@@ -25,14 +24,14 @@ program
 
 program
 	.command('gain <gain>')
-	.description('Set the master gain level (acceptable range -127dB to 0dB)')
+	.description('Set the master gain level (acceptable range -127 dB to 0 dB)')
 	.action((gain) => {
 		actions.push(dsp.setVolume(+gain));
 	});
 
 program
 	.command('input-gain <gain>')
-	.description('Sets the input gain level (-127 dBto 12 dB)')
+	.description('Sets the input gain level (-127 dB to 12 dB)')
 	.action((gain) => {
 		actions.push([ 1, 2 ]
 			.map((x) => dsp.getInput(x))
@@ -40,7 +39,6 @@ program
 				prevVal.then(() => curVal.setGain(gain)), Promise.resolve()
 			));
 	});
-
 
 program
 	.command('monitor')
@@ -50,7 +48,7 @@ program
 		const ProgressBar = require('ascii-progress');
 
 		var bars = inputChannels.map((x) => new ProgressBar({
-				  schema:` ${x} [:bar] :token`,
+				  schema:` ${x+1} [:bar] :token`,
 			  total: 127
 			})
 		);
@@ -67,7 +65,7 @@ program
 		}, 1000/24);
 	});
 
-
+let dsp = new Device();
 program.parse(process.argv);
 
 if (actions.length) {

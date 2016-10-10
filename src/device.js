@@ -5,10 +5,18 @@ let debug = require('debug')('minidsp:device');
 class Device {
 	constructor(options = {}) {
 		if (options.transport) {
-			this.transport = options.transport;
-		} else {
-			this.transport = new USBTransport(options);
+			this._transport = options.transport;
 		}
+
+		this.options = options;
+	}
+
+	get transport() {
+		if (this._transport) {
+			return this._transport;
+		}
+
+		return this._transport = new USBTransport(this.options);
 	}
 
 	close() { 
