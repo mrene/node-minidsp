@@ -1,14 +1,24 @@
 let hid = require('node-hid');
 let HID = hid.HID;
 let Events = require('events');
-let debug = require('debug')('minidsp:transport');
+let debug = require('debug')('minidsp:transport:usb');
+const Constants = require('./constants');
 
 class USBTransport extends Events {
 	constructor({ vid, pid }) {
 		super();
 
+		if (!vid && !pid) {
+			vid = Constants.USB_VID;
+			pid = Constants.USB_PID;
+		}
+
 		this.device = new HID(vid, pid);
 		this.device.on('data', this.onData.bind(this));
+	}
+
+	close() {
+		this.device.close();
 	}
 
 	onData(data) {

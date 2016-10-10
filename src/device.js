@@ -1,15 +1,18 @@
 const Constants = require('./constants');
 const USBTransport = require('./usbtransport');
+let debug = require('debug')('minidsp:device');
 
 class Device {
-	constructor(options) {
-		super();
-
+	constructor(options = {}) {
 		if (options.transport) {
 			this.transport = options.transport;
 		} else {
 			this.transport = new USBTransport(options);
 		}
+	}
+
+	close() { 
+		this.transport.close();
 	}
 
 	crc(data) {
@@ -70,6 +73,7 @@ class Device {
 	}
 
 	setVolume(value) {
+		debug('setVolume', value);
 		// The data is encoded at twice is value, then sent as positive.
 		// For example: -20 dB is sent as 40
 		// -1 dB is sent as 2
@@ -97,6 +101,7 @@ class Device {
 	 * USB: 2
 	 */
 	setInput(value) {
+		debug('setInput', value);
 		if (typeof value === 'string') {
 			const inputs = {
 				analog: Constants.INPUT_ANALOG,
@@ -149,13 +154,20 @@ class Input {
 	 * @param {Float} value Gain value in dB
 	 */
 	setGain(value) {
-		let cmd = Buffer.from([ 0x13, 0xa0, 0, this.index, 0, 0, 0, 0 ]);
+		debug(`setGain(input ${this.index})`, value);
+
+		const inputMap = {
+			1: 0x1a,
+			2: 0x1b
+		};
+
+		let cmd = Buffer.from([ 0x13, 0x80, 0, inputMap[this.index], 0, 0, 0, 0 ]);
 		cmd.writeFloatLE(value, 4);
 		return this.device.sendCommand(cmd);
 	}
 
 	get eq() {
-		return new PEQ();
+		return new PEQ({ device: this.device });
 	}
 }
 

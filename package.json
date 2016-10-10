@@ -13,5 +13,16 @@
     "commander": "^2.9.0",
     "debug": "^2.2.0",
     "node-hid": "^0.5.1"
+  },
+  "bin": {
+    "minidsp": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrene/node-minidsp"
+  },
+  "preferGlobal": true,
+  "devDependencies": {
+    "mocha": "^3.1.0"
   }
 }
