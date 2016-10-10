@@ -170,4 +170,3 @@ class Input {
 
 module.exports = Device;
 
-
