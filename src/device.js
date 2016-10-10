@@ -165,36 +165,8 @@ class Input {
 		cmd.writeFloatLE(value, 4);
 		return this.device.sendCommand(cmd);
 	}
-
-	get eq() {
-		return new PEQ({ device: this.device });
-	}
 }
 
-class PEQ {
-	constructor({ address, unknown1, device }) {
-		this.address = address;
-		this.unknown1 = unknown1;
-		this.device = device;
-	}
-
-	setBiquads(coeff) {
-		if (coeff.length !== 5) {
-			throw new Error('setBiquads needs 5 coefficients passed as an array');
-		}
-
-		let cmd = new Buffer(27);
-		Buffer.from([ 0x30, 0x80 ]).copy(cmd);
-		cmd.writeUint16LE(this.address, 2);
-		cmd.writeUint16LE(this.unknown1, 4);
-
-		for (let i = 0, j = 6; i < 5; i++, j += 4) {
-			cmd.writeFloatLE(coeff[i], j);
-		}
-
-		return this.device.sendCommand(cmd);
-	}
-}
 
 module.exports = Device;
 
