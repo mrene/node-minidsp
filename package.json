@@ -1,5 +1,5 @@
 {
-  "name": "node-minidsp",
+  "name": "minidsp",
   "version": "1.0.0",
   "description": "An interface to the MiniDSP 2x4HD",
   "main": "index.js",

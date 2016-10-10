@@ -5,7 +5,7 @@ DISCLAIMER: The stock miniDSP plugin relies on last-change timestamps to synchro
 
 ## Installation
 ```
-npm install -g node-minidsp
+npm install -g minidsp
 ```
 
 In order to run as a non-privileged user under Linux, you may have to add a udev rule for this specific device. Under `/etc/udev/rules.d`, create a file named `99-minidsp.rules` containing:
