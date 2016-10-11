@@ -65,12 +65,22 @@ program
 		}, 1000/24);
 	});
 
+program
+	.command('proxy')
+	.description('Runs a proxy on port 5333 intended for use with the mobile application')
+	.action(() => {
+		const createProxy = require('./src/proxy');
+		createProxy({
+			transport: dsp.transport
+		});
+	});
+
 let dsp = new Device();
 program.parse(process.argv);
 
 if (actions.length) {
 	Promise.all(actions)
-	// Close the device so we can exit 
+	// Close the device so we can exit
 	.then(dsp.close.bind(dsp))
 	.catch((e) => {
 		console.error(e.toString());

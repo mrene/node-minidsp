@@ -5,7 +5,7 @@ let debug = require('debug')('minidsp:transport:usb');
 const Constants = require('./constants');
 
 class USBTransport extends Events {
-	constructor({ vid, pid }) {
+	constructor({ vid, pid } = {}) {
 		super();
 
 		if (!vid && !pid) {

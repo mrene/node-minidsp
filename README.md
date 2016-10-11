@@ -38,6 +38,7 @@ $ minidsp  --help
     gain <gain>        Set the master gain level (acceptable range -127 dB to 0 dB)
     input-gain <gain>  Sets the input gain level (-127 dB to 12 dB)
     monitor            Monitor input levels
+    proxy              Runs a proxy on port 5333 intended for use with the mobile application
 
   Options:
 

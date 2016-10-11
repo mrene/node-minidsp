@@ -16,6 +16,8 @@ class Device {
 			return this._transport;
 		}
 
+		debug('Creating transport');
+
 		return this._transport = new USBTransport(this.options);
 	}
 
