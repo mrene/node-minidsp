@@ -20,13 +20,17 @@ function createProxy({ transport }) {
 			.tap((vars) => vars.size++)
 			.buffer('data', 'size')
 			.tap((vars) => {
-				debug('fromDevice', vars.data);
+				debug('fromClient', vars.data);
 				transport.write(vars.data);
 		    });
 		});
 		let listener = (data) => {
-			debug('toClient', data);
-			client.write(data);
+			let buf = new Buffer(data.length + 1);
+			buf.writeUInt8(data.length, 0);
+			data.copy(buf, 1);
+
+			debug('toClient', buf);
+			client.write(buf);
 		};
 		transport.on('data', listener);
 		let cleanup = () => {
