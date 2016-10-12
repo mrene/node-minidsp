@@ -42,8 +42,24 @@ $ minidsp  --help
 
   Options:
 
-    -h, --help     output usage information
-    -V, --version  output the version number
+    -h, --help                  output usage information
+    -V, --version               output the version number
+    -t --transport <transport>  Set the underlying transport type (usb, net)
+    -o --opt <opt>              Set transport-specific parameters
+```
+
+
+### Proxy mode
+The plugin application itself uses a helper application communicating via TCP to localhost:5333. This also is the protocol used by the mobile application to provide its remote control interface. Running the application as a proxy will open that port and relay messages to/from the USB interface.
+
+The plugin's Mac version will first attempt a connection before launching the helper application. You can forward it to another machine via `socat` like this: `socat TCP-LISTEN:5333 TCP:192.168.1.144:5333` 
+
+### Transport
+This tool can either talk to the device via USB, or to the proxy running somewhere else.
+
+To control a remote device from the command line, use the following syntax:
+```
+minidsp -t net -o "host=ip-here" [command]
 ```
 
 
@@ -52,4 +68,5 @@ $ minidsp  --help
 * Set gain to -20dB: `minidsp gain -- -20`
 * Switch active input to USB: `minidsp input usb`
 * Monitor: `minidsp monitor`
+
 
