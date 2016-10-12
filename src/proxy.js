@@ -25,17 +25,12 @@ function createProxy({ transport }) {
 		    });
 		});
 		let listener = (data) => {
-			let buf = new Buffer(data.length + 1);
-			buf.writeUInt8(data.length, 0);
-			data.copy(buf, 1);
-
-			debug('toClient', buf);
-			client.write(buf);
+			debug('toClient', data);
+			client.write(data);
 		};
 		transport.on('data', listener);
 		let cleanup = () => {
 			transport.removeListener('data', listener);
-			server.close();
 			debug('Connection closed');
 		};
 		client.on('end', cleanup);

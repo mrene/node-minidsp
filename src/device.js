@@ -1,5 +1,5 @@
 const Constants = require('./constants');
-const USBTransport = require('./usbtransport');
+const USBTransport = require('./transport/usb');
 let debug = require('debug')('minidsp:device');
 
 class Device {
@@ -21,7 +21,7 @@ class Device {
 		return this._transport = new USBTransport(this.options);
 	}
 
-	close() { 
+	close() {
 		this.transport.close();
 	}
 
@@ -31,7 +31,7 @@ class Device {
 
 		/* jshint bitwise:false */
 		// Truncate to one byte
-		sum = sum & 0xFF; 
+		sum = sum & 0xFF;
 
 		return sum;
 	}
@@ -65,8 +65,8 @@ class Device {
 
 	_getMasterStatus() {
 		return this.sendCommand([ 0x05, 0xFF, 0xDA, 0x02 ]).then((data) => {
-			// Expecting response: 05 ff da 00 00 where 
-			if (data.slice(0, 3).compare(Buffer.from([ 0x05, 0xFF, 0xDA ])) !== 0) {
+			// Expecting response: 05 ff da 00 00 where
+			if (data.slice(1, 3).compare(Buffer.from([ 0x05, 0xFF, 0xDA ])) !== 0) {
 				throw new Error('Unexpected response ' + data);
 			}
 
@@ -101,7 +101,7 @@ class Device {
 	}
 
 	getMute() {
-		return this._getMasterStatus().then((status) => status.mute); 
+		return this._getMasterStatus().then((status) => status.mute);
 	}
 
 	/**
@@ -130,11 +130,11 @@ class Device {
 
 	getInputLevels() {
 		return this.sendCommand([ 0x14, 0x00, 0x44, 0x02 ]).then((data) => {
-			if (data.slice(0, 3).compare(Buffer.from([ 0x14, 0x00, 0x44 ])) !== 0) {
+			if (data.slice(1, 4).compare(Buffer.from([ 0x14, 0x00, 0x44 ])) !== 0) {
 				throw new Error('Unexpected response ' + data);
 			}
 
-			return [ data.readFloatLE(3), data.readFloatLE(7) ];
+			return [ data.readFloatLE(4), data.readFloatLE(8) ];
 		});
 	}
 
