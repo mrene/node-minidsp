@@ -121,7 +121,7 @@ class Device {
 
 			value = inputs[value.toLowerCase()];
 
-			if (!value) {
+			if (typeof value === 'undefined') {
 				throw new Error('No such input');
 			}
 		}
