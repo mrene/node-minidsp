@@ -64,6 +64,15 @@ program
 	});
 
 program
+	.command('config <index>')
+	.description('Set active configuration [0-3]')
+	.action((index) => {
+		let dsp = device();
+		actions.push(dsp.setConfig(index));
+	});
+
+
+program
 	.command('mute [enable]')
 	.description('Sets the global mute flag')
 	.action((enable) => {

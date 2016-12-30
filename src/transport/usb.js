@@ -5,7 +5,7 @@ let debug = require('debug')('minidsp:transport:usb');
 const Constants = require('../constants');
 
 class USBTransport extends Events {
-	constructor({ vid, pid } = {}) {
+	constructor({ vid, pid, path } = {}) {
 		super();
 
 		if (!vid && !pid) {
@@ -13,8 +13,13 @@ class USBTransport extends Events {
 			pid = Constants.USB_PID;
 		}
 
-		this.device = new HID(vid, pid);
-		this.device.on('data', this.onData.bind(this));
+		if (path) {
+			debug("Using usb device path", path);
+			this.device = new HID(path);
+		} else {
+			this.device = new HID(vid, pid);
+			this.device.on('data', this.onData.bind(this));
+		}
 	}
 
 	close() {
