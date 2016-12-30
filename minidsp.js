@@ -6,7 +6,7 @@ const debug = require('debug')('minidsp');
 const USBTransport = require('./src/transport/usb');
 const NetTransport = require('./src/transport/net');
 
-program.version('1.0.1')
+program.version('1.0.2')
 	   .option('-t --transport <transport>', 'Set the underlying transport type (usb, net)', 'usb', /^usb|net$/)
 	   .option('-o --opt <opt>', 'Set transport-specific parameters');
 
