@@ -34,6 +34,7 @@ $ minidsp  --help
   Commands:
 
     input <source>     Set input source [analog|toslink|usb]
+    config <index>     Set active configuration [0-3]
     mute [enable]      Sets the global mute flag
     gain <gain>        Set the master gain level (acceptable range -127 dB to 0 dB)
     input-gain <gain>  Sets the input gain level (-127 dB to 12 dB)

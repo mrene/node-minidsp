@@ -104,6 +104,22 @@ class Device {
 		return this._getMasterStatus().then((status) => status.mute);
 	}
 
+	/** 
+	* Sets the active configuration
+	* index is the 0-based index of the configuration to load (0-3)
+	*/
+	setConfig(index) {
+		// Only the first command sends the configuration index, but the air application always sends the other commands so they might
+		// internally perform some load operations within the DSP software.
+		return this.sendCommand([ 0x25, index, 0x01 ]).then(() => {
+			return this.sendCommand([ 0x05, 0xff, 0xe5, 0x01 ]);
+		}).then(() => {
+			return this.sendCommand([ 0x05, 0xff, 0xe0, 0x01 ]);
+		}).then(() => { 
+			return this.sendCommand([ 0x05, 0xff, 0xda, 0x02 ]);
+		});
+	}
+
 	/**
 	 * Sets the input
 	 * Analog: 0
