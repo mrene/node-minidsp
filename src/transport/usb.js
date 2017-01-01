@@ -13,14 +13,14 @@ class USBTransport extends Events {
             this.device = new HID(path);
         } else {
             this.device = new HID(vid, pid);
-            this.device.on('data', this.onData.bind(this));
         }
+
+	this.device.on('data', this.onData.bind(this));
     }
 
     static probe({ vid = Constants.USB_VID, pid = Constants.USB_PID } = {}) {
-        return hid.devices()
-                    .filter((device) => device.vendorId === vid && device.productId === pid)
-                    .map(({ path, product }) => ({ path, product }));
+        return hid.devices(vid, pid)
+                    .map(({ path, product, serialNumber }) => ({ path, product, serialNumber }));
     }
 
     close() {
