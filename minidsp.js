@@ -80,10 +80,7 @@ program
 	.action((index) => {
 		console.log(`set config to ${index}`);
 		let dsp = device();
-		let p = dsp.setConfig(index);
-		actions.push(p);
-
-		p.catch((e) => console.log(e.toString()));
+		actions.push(dsp.setConfig(index));
 	});
 
 
