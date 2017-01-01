@@ -1,6 +1,6 @@
 {
   "name": "minidsp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An interface to the MiniDSP 2x4HD",
   "main": "index.js",
   "scripts": {
