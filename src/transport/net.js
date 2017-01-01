@@ -27,6 +27,10 @@ class NetTransport extends Events {
 			});
 	}
 
+	static probe() {
+		throw new Error('Probing is not supported when using the network transport');
+	}
+
 	write(data) {
 		debug('write', data);
 		this.connection.write(data);

@@ -33,6 +33,7 @@ $ minidsp  --help
 
   Commands:
 
+    devices            List available devices
     input <source>     Set input source [analog|toslink|usb]
     config <index>     Set active configuration [0-3]
     mute [enable]      Sets the global mute flag
@@ -62,6 +63,9 @@ To control a remote device from the command line, use the following syntax:
 ```
 minidsp -t net -o "host=ip-here" [command]
 ```
+
+### Working with multiple devices
+You can list the available device paths using `minidsp devices` - then use `-o path=[path-here]` to select which device to use.
 
 
 ### Examples
