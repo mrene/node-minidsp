@@ -15,7 +15,7 @@ class USBTransport extends Events {
             this.device = new HID(vid, pid);
         }
 
-	this.device.on('data', this.onData.bind(this));
+    	this.device.on('data', this.onData.bind(this));
     }
 
     static probe({ vid = Constants.USB_VID, pid = Constants.USB_PID } = {}) {

@@ -78,12 +78,8 @@ program
 	.command('config <index>')
 	.description('Set active configuration [0-3]')
 	.action((index) => {
-		console.log(`set config to ${index}`);
 		let dsp = device();
-		let p = dsp.setConfig(index);
-		actions.push(p);
-
-		p.catch((e) => console.log(e.toString()));
+		actions.push(dsp.setConfig(index));
 	});
 
 
