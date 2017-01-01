@@ -22,7 +22,7 @@ function parseParams(params) {
 	let obj = {};
 	parts.forEach((part) => {
 		let keyvalue = part.split('=');
-		if (keyvalue.length == 2) {
+		if (keyvalue.length === 2) {
 			let key = keyvalue[0],
 				value = keyvalue[1];
 			obj[key.trim()] = value.trim();
@@ -32,28 +32,39 @@ function parseParams(params) {
 	return obj;
 }
 
+function transportClass(name) {
+	const transportMap = {
+		'usb': USBTransport,
+		'net': NetTransport,
+	};
+
+	if (!(name in transportMap)) {
+		throw new Error(`No such transport ${name}`);
+	}
+
+	return transportMap[name];
+}
+
 function device() {
 	if (_device) {
 		return _device;
 	}
 
-	let transport;
 	debug('Instanciating transport: ', program.transport);
 	debug('Params:', program.opt);
 
-	switch (program.transport) {
-		case 'usb':
-		transport = new USBTransport(parseParams(program.opt));
-		break;
-		case 'net':
-		transport = new NetTransport(parseParams(program.opt));
-		break;
-		default:
-		throw new Error(`No such transport ${program.transport}`);
-	}
-
-	return _device = new Device({ transport });
+	let TransportClass = transportClass(program.transport);
+	return _device = new Device({ transport: new TransportClass(parseParams(program.opt)) });
 }
+
+program
+	.command('devices')
+	.description('List available devices')
+	.action(() => {
+		let TransportClass = transportClass(program.transport);
+		let devices = TransportClass.probe(parseParams(program.opt));
+		devices.forEach(({path, product}) => console.log(`${path}\t${product}`));
+	});
 
 program
 	.command('input <source>')

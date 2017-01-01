@@ -5,65 +5,66 @@ let debug = require('debug')('minidsp:transport:usb');
 const Constants = require('../constants');
 
 class USBTransport extends Events {
-	constructor({ vid, pid, path } = {}) {
-		super();
+    constructor({ vid = Constants.USB_VID, pid = Constants.USB_PID, path } = {}) {
+        super();
 
-		if (!vid && !pid) {
-			vid = Constants.USB_VID;
-			pid = Constants.USB_PID;
-		}
+        if (path) {
+            debug('Using usb device path', path);
+            this.device = new HID(path);
+        } else {
+            this.device = new HID(vid, pid);
+        }
 
-		if (path) {
-			debug("Using usb device path", path);
-			this.device = new HID(path);
-		} else {
-			this.device = new HID(vid, pid);
-			this.device.on('data', this.onData.bind(this));
-		}
-	}
+    	this.device.on('data', this.onData.bind(this));
+    }
 
-	close() {
-		this.device.close();
-	}
+    static probe({ vid = Constants.USB_VID, pid = Constants.USB_PID } = {}) {
+        return hid.devices(vid, pid)
+                    .map(({ path, product, serialNumber }) => ({ path, product, serialNumber }));
+    }
 
-	onData(data) {
-		// Response packets are all 64 bytes long, with the first byte
-		// indicating the length
-		if (!(data instanceof Buffer)) {
-			data = new Buffer(data);
-		}
+    close() {
+        this.device.close();
+    }
 
-		// Slice the message and only keep what's important
-		// (the minidsp always sends 64 byte packets)
-		let length = data.readUInt8(0);
+    onData(data) {
+        // Response packets are all 64 bytes long, with the first byte
+        // indicating the length
+        if (!(data instanceof Buffer)) {
+            data = new Buffer(data);
+        }
 
-		// Received packets length do not include the length header
-		data = data.slice(0, length);
+        // Slice the message and only keep what's important
+        // (the minidsp always sends 64 byte packets)
+        let length = data.readUInt8(0);
 
-		debug('onData', data);
+        // Received packets length do not include the length header
+        data = data.slice(0, length);
 
-		this.emit('data', data);
-	}
+        debug('onData', data);
 
-	write(data) {
-		debug('write', data);
+        this.emit('data', data);
+    }
 
-		// Expand data to a 64 byte buffer, pad with 0xFF
-		// Since hidapi wants the report id as the first byte, this is
-		// one byte longer than the actual data going down the write
-		let sendBuffer = new Buffer(65);
-		sendBuffer.writeUInt8(0,0); // Set report id to 0
-		data.copy(sendBuffer, 1);
-		sendBuffer.fill(0xFF, data.length+1);
+    write(data) {
+        debug('write', data);
 
-		// Send this report down to the HID device
-		// node-hid seems to dislike buffers and send out garbage instead,
-		// so we give it a flat array
-		let sendData = [ ];
-		sendBuffer.forEach((x) => sendData.push(x));
+        // Expand data to a 64 byte buffer, pad with 0xFF
+        // Since hidapi wants the report id as the first byte, this is
+        // one byte longer than the actual data going down the wire
+        let sendBuffer = new Buffer(65);
+        sendBuffer.writeUInt8(0,0); // Set report id to 0
+        data.copy(sendBuffer, 1);
+        sendBuffer.fill(0xFF, data.length+1);
 
-		this.device.write(sendData);
-	}
+        // Send this report down to the HID device
+        // node-hid seems to dislike buffers and send out garbage instead,
+        // so we give it a flat array
+        let sendData = [ ];
+        sendBuffer.forEach((x) => sendData.push(x));
+
+        this.device.write(sendData);
+    }
 }
 
 module.exports = USBTransport;
