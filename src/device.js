@@ -66,14 +66,14 @@ class Device {
 	_getMasterStatus() {
 		return this.sendCommand([ 0x05, 0xFF, 0xDA, 0x02 ]).then((data) => {
 			// Expecting response: 05 ff da 00 00 where
-			if (data.slice(1, 3).compare(Buffer.from([ 0x05, 0xFF, 0xDA ])) !== 0) {
+			if (data.slice(1, 4).compare(Buffer.from([ 0x05, 0xFF, 0xDA ])) !== 0) {
 				throw new Error('Unexpected response ' + data);
 			}
 
 			// Convert back to dB
 			return {
-				volume: -2 * data.readUInt8(3),
-				mute: !!data.readUInt8(4)
+				volume: -0.5 * data.readUInt8(4),
+				mute: !!data.readUInt8(5)
 			};
 		});
 	}
@@ -126,22 +126,29 @@ class Device {
 	 * TOSLink: 1
 	 * USB: 2
 	 */
-	setInput(value) {
-		debug('setInput', value);
+	setSource(value) {
+		debug('setSource', value);
 		if (typeof value === 'string') {
-			const inputs = {
-				analog: Constants.INPUT_ANALOG,
-				toslink: Constants.INPUT_TOSLINK,
-				usb: Constants.INPUT_USB
-			};
-
-			value = inputs[value.toLowerCase()];
-
+			value = Constants.SOURCE_INDEX[value.toLowerCase()];
 			if (typeof value === 'undefined') {
 				throw new Error('No such input');
 			}
 		}
 		return this.sendCommand([ 0x34, value ]);
+	}
+
+	getSource() {
+		return this.sendCommand([ 0x05, 0xFF, 0xD9, 0x01 ]).then((data) => {
+			// Expecting response: 05 ff d9 00 where
+			if (data.slice(1, 4).compare(Buffer.from([ 0x05, 0xFF, 0xD9])) !== 0) {
+				throw new Error('Unexpected response ' + data);
+			}
+			var value = Constants.SOURCE_NAME[data.readUInt8(4)];
+			if (typeof value === 'undefined') {
+				throw new Error('No such input');
+			}
+			return value;
+		});
 	}
 
 	getInputLevels() {
