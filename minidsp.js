@@ -71,7 +71,7 @@ program
 	.description('Set input source [analog|toslink|usb]')
 	.action((source) => {
 		let dsp = device();
-		actions.push(dsp.setInput(source));
+		actions.push(dsp.setSource(source));
 	});
 
 program
