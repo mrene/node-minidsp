@@ -1,3 +1,11 @@
+# Superseeded
+## This project has since then been rewritten from scratch 
+
+It also has been expanded to include configuring everything the official plugin does.
+
+See https://github.com/mrene/minidsp-rs
+
+
 # node-minidsp
 This provides a command line interface to control the MiniDSP2x4HD directly over USB HID. It was developped using the plugin version 107 (September 2016) and contains minimal functionality to operate the device under Linux.
 
